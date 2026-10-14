@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero"><div><div class="eyebrow">Operational Intelligence</div><div class="title">WASTECLEAN Command Center</div><div class="subtitle">Real-time overview of digital waste reports, AI priorities, collection tasks and performance.</div></div><a class="btn" href="{{ url_for('report') }}">＋ New Waste Report</a></div>
+<div class="cards">
+<div class="card"><div class="metric-label">Total Reports</div><div class="metric">{{ stats.total }}</div><div class="metric-note">Digital reports received</div></div>
+<div class="card"><div class="metric-label">Pending</div><div class="metric">{{ stats.pending }}</div><div class="metric-note">Require attention</div></div>
+<div class="card"><div class="metric-label">Resolved</div><div class="metric">{{ stats.resolved }}</div><div class="metric-note">Collected / resolved</div></div>
+<div class="card"><div class="metric-label">Critical</div><div class="metric">{{ stats.critical }}</div><div class="metric-note">AI-prioritized cases</div></div>
+<div class="card"><div class="metric-label">SLA / Resolution</div><div class="metric">{{ stats.sla }}%</div><div class="metric-note">Prototype KPI</div></div>
+</div>
+<div class="grid2">
+<div class="section"><div class="section-head"><h2>Recent Waste Reports</h2><a class="btn light" href="{{ url_for('reports') }}">View All</a></div>
+<table><thead><tr><th>ID</th><th>Waste</th><th>AI Priority</th><th>AI Confidence</th><th>Status</th></tr></thead><tbody>
+{% for r in recent %}<tr><td>#{{ r.id }}</td><td><b>{{ r.waste_type }}</b><br><span style="color:#7b8997">{{ r.description[:55] }}{% if r.description|length>55 %}…{% endif %}</span></td><td><span class="badge {{ r.priority|lower }}">{{ r.priority }}</span></td><td>{{ r.ai_confidence }}%</td><td><span class="badge {{ r.status|lower|replace(' ','') }}">{{ r.status }}</span></td></tr>{% endfor %}
+</tbody></table></div>
+<div class="section"><div class="section-head"><h2>Waste Intelligence Map</h2></div><div id="dashmap" class="map mini-map"></div></div>
+</div>
+<div class="grid3">
+<div class="card"><div class="metric-label">AI Workflow</div><div style="font-size:13px;font-weight:800;color:#102a43;margin-top:10px">Analyse → Prioritize → Predict</div><p style="font-size:11px;color:#718096;line-height:1.6">Local ML analyses report text and operational context without requiring a paid API.</p></div>
+<div class="card"><div class="metric-label">GIS Workflow</div><div style="font-size:13px;font-weight:800;color:#102a43;margin-top:10px">Locate → Plan → Assign</div><p style="font-size:11px;color:#718096;line-height:1.6">Reports are mapped so supervisors can coordinate location-aware collection.</p></div>
+<div class="card"><div class="metric-label">Operational Workflow</div><div style="font-size:13px;font-weight:800;color:#102a43;margin-top:10px">Task → Collect → Measure</div><p style="font-size:11px;color:#718096;line-height:1.6">Task status and KPIs create a measurable digital workflow.</p></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+fetch('/api/reports').then(r=>r.json()).then(data=>{
+ const m=L.map('dashmap').setView([18.5208,73.8567],13);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(m);
+ data.forEach(x=>{
+   const c=x.priority==='CRITICAL'?'#dc3f4b':x.priority==='HIGH'?'#ef9b1a':x.priority==='MEDIUM'?'#d7bd22':'#1769e0';
+   L.circleMarker([x.latitude,x.longitude],{radius:8,color:c,fillColor:c,fillOpacity:.8}).addTo(m).bindPopup('<b>#'+x.id+' '+x.priority+'</b><br>'+x.waste_type+'<br>'+x.description);
+ });
+});
+</script>
+{% endblock %}

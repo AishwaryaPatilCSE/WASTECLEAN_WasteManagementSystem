@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero"><div><div class="eyebrow">Citizen Intelligence Input</div><div class="title">Report Waste</div><div class="subtitle">Submit a location-based report. WASTECLEAN will locally analyse the description and operational context.</div></div></div>
+<div class="card form-card">
+<form method="post">
+<div class="form-grid">
+<div class="field"><label>WASTE TYPE</label><select name="waste_type"><option>Mixed Waste</option><option>Plastic</option><option>Organic</option><option>Paper</option><option>Medical</option><option>Other</option></select></div>
+<div class="field"><label>IMAGE (DEMO PLACEHOLDER)</label><input type="file" accept="image/*"></div>
+</div>
+<div class="field"><label>DESCRIPTION</label><textarea name="description" required placeholder="Example: Overflowing garbage pile near market with foul smell"></textarea></div>
+<div class="form-grid">
+<div class="field"><label>LATITUDE</label><input id="lat" name="latitude" value="18.5208" required></div>
+<div class="field"><label>LONGITUDE</label><input id="lng" name="longitude" value="73.8567" required></div>
+</div>
+<div class="section-head"><h2>Select / preview location</h2></div><div id="map" class="map"></div>
+<div style="margin-top:16px;display:flex;gap:10px"><button class="btn" type="submit">Submit & Run AI Analysis</button><a class="btn light" href="{{ url_for('dashboard') }}">Cancel</a></div>
+</form></div>
+{% endblock %}
+{% block scripts %}
+<script>
+const map=L.map('map').setView([18.5208,73.8567],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(map);
+let marker=L.marker([18.5208,73.8567],{draggable:true}).addTo(map);
+function sync(p){document.getElementById('lat').value=p.lat.toFixed(5);document.getElementById('lng').value=p.lng.toFixed(5);}
+map.on('click',e=>{marker.setLatLng(e.latlng);sync(e.latlng);});
+marker.on('dragend',()=>sync(marker.getLatLng()));
+</script>
+{% endblock %}

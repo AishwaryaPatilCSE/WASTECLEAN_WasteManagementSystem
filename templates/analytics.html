@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero"><div><div class="eyebrow">AI + GIS Insights</div><div class="title">Waste Intelligence Analytics</div><div class="subtitle">Prototype metrics showing how WASTECLEAN converts reports into operational insight.</div></div></div>
+<div class="grid2">
+<div class="card"><div class="section-head"><h2>AI Priority Distribution</h2></div>
+{% set totalp = priority|sum(attribute='c') %}
+{% for p in priority %}<div class="chart-row"><div class="chart-label">{{ p.priority }}</div><div class="chart-track"><div class="bar"><i style="width:{{ ((p.c/totalp)*100 if totalp else 0)|round(0) }}%"></i></div></div><div class="chart-value">{{ p.c }}</div></div>{% endfor %}
+</div>
+<div class="card"><div class="section-head"><h2>Waste Category Distribution</h2></div>
+{% set totalw = waste|sum(attribute='c') %}
+{% for w in waste %}<div class="chart-row"><div class="chart-label">{{ w.waste_type }}</div><div class="chart-track"><div class="bar"><i style="width:{{ ((w.c/totalw)*100 if totalw else 0)|round(0) }}%"></i></div></div><div class="chart-value">{{ w.c }}</div></div>{% endfor %}
+</div></div>
+<div class="grid2" style="margin-top:20px">
+<div class="card"><div class="section-head"><h2>Recurring Hotspots</h2></div>
+<table><thead><tr><th>Location</th><th>Reports</th><th>Interpretation</th></tr></thead><tbody>{% for h in hotspots %}<tr><td>{{ h.lat }}, {{ h.lng }}</td><td><b>{{ h.c }}</b></td><td><span class="badge high">Potential Hotspot</span></td></tr>{% else %}<tr><td colspan="3">No recurring hotspots yet.</td></tr>{% endfor %}</tbody></table></div>
+<div class="card"><div class="section-head"><h2>Operational Intelligence</h2></div><div style="font-size:12px;line-height:1.9;color:#607084">
+<b style="color:#102a43">1. Analyse:</b> classify incoming reports.<br>
+<b style="color:#102a43">2. Prioritize:</b> combine AI output with recurrence.<br>
+<b style="color:#102a43">3. Predict:</b> identify locations with repeated reports.<br>
+<b style="color:#102a43">4. Optimize:</b> prepare location-aware collection planning.<br>
+<b style="color:#102a43">5. Measure:</b> track resolution and SLA performance.
+</div></div>
+</div>
+{% endblock %}
